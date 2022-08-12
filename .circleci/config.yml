@@ -263,7 +263,7 @@ jobs:
             npm install
             npm run migrations > migration_status
       - run:
-          name: send migration to memstash
+          name: send migration to kvdb
           command: |
             # Your code here
             cd .circleci/ansible
