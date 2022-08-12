@@ -331,15 +331,13 @@ jobs:
           fingerprints: ["7f:6f:b8:c2:dc:3d:5a:32:9c:99:25:0b:dc:9d:91:cf"]
       - attach_workspace:
           at: .
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       # your code here
-      #       cd tmp
-      #       apk add --update ansible curl rsync openssh nodejs npm
-      #       ansible --version
-      #       pip install awscli
-      #       aws --version 
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible curl rsync openssh nodejs npm
+            ansible --version
+            pip install awscli
+            aws --version 
       - run:
           name: Deploy backend
           command: |
@@ -453,8 +451,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
