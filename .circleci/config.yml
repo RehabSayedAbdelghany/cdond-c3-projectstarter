@@ -26,24 +26,28 @@ commands:
               TERM: xterm-256color
           when: << parameters.when >>
 
-#   revert-migrations:
-#     description: Revert the last migration if successfully run in the current workflow.
-#     parameters:
-#       # Add parameter here     
-#     steps:
-#       - run:
-#           name: Revert migrations
-#           # Add when this will run
-#           command: |
-#             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-#             SUCCESS = 1
-#             if(( $SUCCESS==1 )); 
-#             then
-#             #  cd ~/project/backend
-#             #  npm install
-#             #  Add revert code here. You can find this in the Getting Started section.
-#               exit 1
-#             fi
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      when:
+        type: string
+      id:
+        type: string     
+    steps:
+      - run:
+          name: Revert migrations
+          # Add when this will run
+          command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            SUCCESS=$(curl  --request GET https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_<< parameters.id >>)
+            echo $SUCCESS
+            if [[ "$SUCCESS" == "success" ]]
+            then
+              pwd
+              ls -la
+              npm run migrations:revert
+            fi
+          when: << parameters.when >>
             
 jobs:
   notify:
@@ -200,7 +204,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text)
-            curl -H "Content-Type: text/plain"  --request PUT --data "http://$BACKEND_IP:3030" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/BACKEND_URL
+            curl  -d "http://$BACKEND_IP:3030" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/BACKEND_URL
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -266,10 +270,10 @@ jobs:
             if grep -q "has been executed successfully" migration_status
              then
                echo "DB migration was successful, will update memstash..."
-               curl -H "Content-Type: text/plain" --request PUT --data "success" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+               curl -d "success" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
              else
                echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
-               curl -H "Content-Type: text/plain" --request PUT --data "failure" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+               curl -d "failure" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
             fi
             echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
@@ -298,7 +302,7 @@ jobs:
             # export API_URL="http://${BACKEND_IP}:3030"
             # echo "${API_URL}"
             cd frontend
-            export API_URL=$(curl -H "token: 1e288415-cfc8-4a0a-a23c-087eb7cd7678" --request GET https://api.memstash.io/values/BACKEND_URL)
+            export API_URL=$(curl https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/BACKEND_URL)
             echo "${API_URL}"
             npm install
             npm run build
@@ -315,7 +319,7 @@ jobs:
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
-      - revert_migrations:
+      - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
       # Here's where you will add some code to rollback on failure      
