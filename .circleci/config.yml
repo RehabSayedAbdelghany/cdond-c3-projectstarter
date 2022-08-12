@@ -194,6 +194,14 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
+          name: Save backend URL in kvdb.io 
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text)
+            curl -H "Content-Type: text/plain" -H  --request PUT --data "http://$BACKEND_IP:3030" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/BACKEND_URL
+      - run:
           name: Add back-end ip to ansible inventory
           command: |
             cd .circleci/ansible
@@ -300,6 +308,16 @@ jobs:
             # your code here
             cd frontend
             aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+      - persist_to_workspace:
+          root: .
+          paths:
+            - frontend/dist
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+      - revert_migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
       # Here's where you will add some code to rollback on failure      
                     
 #   deploy-backend:
