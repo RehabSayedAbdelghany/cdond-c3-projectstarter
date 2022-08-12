@@ -220,10 +220,9 @@ jobs:
       - run:
           name: install dependencies
           command: |
-             # Your code here
-             cd .circleci/ansible
-             apk add --update ansible
-             ansible --version
+            cd .circleci/ansible
+            apk add --update ansible
+            ansible --version
       - run:
           name: Configure server
           command: |
@@ -237,35 +236,35 @@ jobs:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
 
-  # run-migrations:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - attach_workspace:
-  #         at: .
-  #     - run:
-  #         name: Run migrations
-  #         command: |
-  #           # Your code here
-  #           cd backend
-  #           npm run migrations > migration_status
-  #     - run:
-  #         name: Send migration results to memstash
-  #         command: |
-  #           # Your code here
-  #           if grep -q "has been executed successfully" migration_status
-  #           then
-  #             echo "DB migration was successful, will update memstash..."
-  #             curl -H "Content-Type: text/plain" -H "token: 2a9e15d6-b9fa-4b1f-a5dc-e3b9643a9b63" --request PUT --data "success" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
-  #           else
-  #             echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
-  #             curl -H "Content-Type: text/plain" -H "token: 2a9e15d6-b9fa-4b1f-a5dc-e3b9643a9b63" --request PUT --data "failure" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
-  #           fi
-  #           echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
-  #    - destroy-environment:
-  #         id: ${CIRCLE_WORKFLOW_ID:0:7}
-  #         when: on_fail     
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run migrations
+          command: |
+            # Your code here
+            cd backend
+            npm run migrations > migration_status
+      - run:
+          name: Send migration results to memstash
+          command: |
+            # Your code here
+            if grep -q "has been executed successfully" migration_status
+            then
+              echo "DB migration was successful, will update memstash..."
+              curl -H "Content-Type: text/plain" -H "token: 2a9e15d6-b9fa-4b1f-a5dc-e3b9643a9b63" --request PUT --data "success" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+            else
+              echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
+              curl -H "Content-Type: text/plain" -H "token: 2a9e15d6-b9fa-4b1f-a5dc-e3b9643a9b63" --request PUT --data "failure" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+            fi
+            echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
+     - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail     
 
 #   deploy-frontend:
 #     docker:
@@ -385,8 +384,8 @@ workflows:
               only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
