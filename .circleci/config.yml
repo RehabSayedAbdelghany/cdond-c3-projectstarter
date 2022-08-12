@@ -266,10 +266,10 @@ jobs:
           name: send migration to kvdb
           command: |
             # Your code here
-            cd .circleci/ansible
+            cd backend
             if grep -q "has been executed successfully" migration_status
              then
-               echo "DB migration was successful, will update memstash..."
+               echo "DB migration was successful, will update kvdb..."
                curl -d "success" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
              else
                echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
