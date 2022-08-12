@@ -231,7 +231,7 @@ jobs:
             cd .circleci/ansible
             pwd &&
             ls -la
-            cat inventory.txt
+            cat inventory
             ansible-playbook -i inventory configure-server.yaml
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
