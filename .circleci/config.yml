@@ -291,13 +291,8 @@ jobs:
             cd backend
             if grep -q "has been executed successfully." migrations_dump.txt
              then
-               echo "DB migration was successful, will update kvdb..."
                curl --insecure -d "success" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
-             else
-               echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
-               curl --insecure -d "failure" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
             fi
-            echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
@@ -349,8 +344,8 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["7f:6f:b8:c2:dc:3d:5a:32:9c:99:25:0b:dc:9d:91:cf"]
-      - attach_workspace:
-          at: .
+      - restore_cache:
+          keys: [ backend-build ]
       - run:
           name: Install dependencies
           command: |
@@ -359,11 +354,30 @@ jobs:
             pip install awscli
             aws --version 
       - run:
+          name: Configure Server
+          no_output_timeout: 60m
+          command: |
+            echo ENVIRONMENT=production >> "backend/.env"
+            echo NODE_ENV=production >> "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+      - run:
           name: Deploy backend
           command: |
             # your code here
+            pm install
+            npm run build
+            tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory file is -------"
+            export ANSIBLE_HOST_KEY_CHECKING=False
             cat inventory
             ansible-playbook -i inventory deploy-backend.yml
             # npm install
