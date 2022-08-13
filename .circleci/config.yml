@@ -324,9 +324,6 @@ jobs:
     docker:
       - image: python:3.9.0-alpine
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
       - checkout
       - add_ssh_keys:
           fingerprints: ["7f:6f:b8:c2:dc:3d:5a:32:9c:99:25:0b:dc:9d:91:cf"]
@@ -343,13 +340,13 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-            npm i
-            npm run build
-            tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory file is -------"
             cat inventory
             ansible-playbook -i inventory deploy-backend.yml
+            # npm install
+            # pm2 stop default
+            # pm2 start npm -- start
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
