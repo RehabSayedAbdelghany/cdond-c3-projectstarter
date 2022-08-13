@@ -254,8 +254,8 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install AWS CLI dependencies
           command: |
@@ -264,17 +264,32 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
       - run:
+          name: prepare environment for backend build
+          command: |
+            echo "Preparing environment for backend build"
+            echo ENVIRONMENT=$ENVIRONMENT >> backend/.env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+      - run:
           name: run migration
           command: |
             cd backend
             npm install
-            npm run migrations > migration_status
+            npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt 
       - run:
           name: send migration to kvdb
           command: |
             # Your code here
             cd backend
-            if grep -q "has been executed successfully" migration_status
+            if grep -q "has been executed successfully." migrations_dump.txt
              then
                echo "DB migration was successful, will update kvdb..."
                curl --insecure -d "success" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
