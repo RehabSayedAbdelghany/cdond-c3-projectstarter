@@ -39,7 +39,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS=$(curl  --request GET https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_<< parameters.id >>)
+            SUCCESS=$(curl  https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/MIGRATION_<< parameters.id >>)
             echo $SUCCESS
             if [[ "$SUCCESS" == "success" ]]
             then
@@ -293,7 +293,7 @@ jobs:
             cd backend
             if grep -q "has been executed successfully." migrations_dump.txt
              then
-               curl --insecure -d "success" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+               curl --insecure -d "success" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
             fi
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -375,6 +375,7 @@ jobs:
           command: |
             # your code here
             npm install
+            npm init
             npm run build
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
