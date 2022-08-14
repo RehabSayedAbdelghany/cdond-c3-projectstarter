@@ -206,17 +206,17 @@ jobs:
               --output text)
             curl  -d "http://$BACKEND_IP:3030" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/BACKEND_URL
       - run:
-          name: Add back-end ip to ansible inventory
+          name: Add back-end ip to ansible inventory.txt
           command: |
             cd .circleci/ansible
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text >> inventory
+              --output text >> inventory.txt
       - persist_to_workspace:
           root: .
           paths:
-            - .circleci/ansible/inventory
+            - .circleci/ansible/inventory.txt
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail     
@@ -243,8 +243,8 @@ jobs:
             cd .circleci/ansible
             pwd &&
             ls -la
-            cat inventory
-            ansible-playbook -i inventory configure-server.yml
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
@@ -381,9 +381,9 @@ jobs:
             # npm run build
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
-            cat inventory
+            cat inventory.txt
             export ANSIBLE_HOST_KEY_CHECKING=False
-            ansible-playbook -i inventory deploy-backend.yml
+            ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
