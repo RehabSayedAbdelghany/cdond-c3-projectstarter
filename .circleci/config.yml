@@ -378,7 +378,6 @@ jobs:
             # your code here
             cd backend
             npm install
-            # npm init
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
