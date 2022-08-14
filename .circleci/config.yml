@@ -256,6 +256,8 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - attach_workspace:
+          at: .
       - run:
           name: Install AWS CLI dependencies
           command: |
