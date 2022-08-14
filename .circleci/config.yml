@@ -374,12 +374,11 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-            npm install
-            npm init
-            npm run build
+            # npm install
+            # npm init
+            # npm run build
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
-            echo "Contents  of the inventory file is -------"
             cat inventory
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory deploy-backend.yml
