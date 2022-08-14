@@ -376,9 +376,11 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-            # npm install
+            cd backend
+            npm install
             # npm init
-            # npm run build
+            npm run build
+            cd ..
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             cat inventory.txt
