@@ -348,6 +348,8 @@ jobs:
           fingerprints: ["7f:6f:b8:c2:dc:3d:5a:32:9c:99:25:0b:dc:9d:91:cf"]
       - restore_cache:
           keys: [ backend-build ]
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           command: |
