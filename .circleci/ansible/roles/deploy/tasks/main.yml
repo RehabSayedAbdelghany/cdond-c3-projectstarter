@@ -9,7 +9,7 @@
 - name: Extract backend to folder
   become_user: ubuntu
   unarchive:
-    src: /home/backend.tar.gz
+    src: /root/project/backend/artifact.tar.gz
     dest: ~/backend
     owner: ubuntu
     group: ubuntu
