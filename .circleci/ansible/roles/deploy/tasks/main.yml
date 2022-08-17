@@ -1,30 +1,35 @@
-- name: Make directory for install
-  file:
-    path: ~/backend
-    state: directory
-    owner: ubuntu
-    group: ubuntu
-    mode: 0755
-
-- name: Extract backend to folder
-  become_user: ubuntu
-  unarchive:
-    src: /home/backend.tar.gz
-    dest: ~/backend
-    owner: ubuntu
-    group: ubuntu
-    mode: 0755
-
-- name: Install dependencies
+---
+- name: "upgrade packages."
   become: true
-  shell: |
-    cd ~/backend
-    #sudo npm install -g npm@latest
-    sudo npm install -g webpack-dev-server
-    sudo npm install
+  apt:
+    upgrade: "yes"
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    update_cache: yes
 
-- name: Build and run PM2 server
-  shell: |
-    cd ~/backend
-    sudo npm run build:prod
-    pm2 start npm --name backend -- start
+- name: "copy backend file"
+  become: true
+  copy:
+    src: /root/project/backend
+    dest: /root
+    force: no
+
+- name: "install npm packages"
+  become: true
+  command: npm install --force
+  args:
+    chdir: /root/backend
+
+- name: "compile npm packages"
+  become: true
+  command: npm run build
+  args:
+    chdir: /root/backend
+
+- name: "start server"
+  become: true
+  command: pm2 start npm -- run start
+  args:
+    chdir: /root/backend/dist
