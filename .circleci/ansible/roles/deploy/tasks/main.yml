@@ -1,35 +1,30 @@
----
-- name: "upgrade packages."
-  become: true
-  apt:
-    upgrade: "yes"
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    update_cache: yes
+- name: Make directory for install
+  file:
+    path: ~/backend
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
 
-- name: "copy backend file"
-  become: true
-  copy:
-    src: /root/project/backend
-    dest: /root
-    force: no
+- name: Extract backend to folder
+  become_user: ubuntu
+  unarchive:
+    src: /home/backend.tar.gz
+    dest: ~/backend
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
 
-- name: "install npm packages"
+- name: Install dependencies
   become: true
-  command: npm install --force
-  args:
-    chdir: /root/backend
+  shell: |
+    cd ~/backend
+    #sudo npm install -g npm@latest
+    sudo npm install -g webpack-dev-server
+    sudo npm install
 
-- name: "compile npm packages"
-  become: true
-  command: npm run build
-  args:
-    chdir: /root/backend
-
-- name: "start server"
-  become: true
-  command: pm2 start npm -- run start
-  args:
-    chdir: /root/backend/dist
+- name: Build and run PM2 server
+  shell: |
+    cd ~/backend
+    sudo npm run build:prod
+    pm2 start npm --name backend -- start
