@@ -42,12 +42,12 @@
 ---
 - name: Copy backend dist files web server
   copy:
-    src: backend.zip
+    src: backend.tar
     dest: /home/ubuntu
 
 - name: Unzip backend files
   shell: |
-    unzip /home/ubuntu/backend.zip
+    tar -zxvf /home/ubuntu/backend.tar
 - name: Install Node
   shell: |
     cd /home/ubuntu/backend
