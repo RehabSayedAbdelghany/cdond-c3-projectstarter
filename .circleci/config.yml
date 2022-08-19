@@ -39,7 +39,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            npm install
+            
             SUCCESS=$(curl  https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/MIGRATION_<< parameters.id >>)
             echo $SUCCESS
             if [[ "$SUCCESS" == "success" ]]
@@ -390,13 +390,14 @@ jobs:
             # your code here
             mkdir .circleci/ansible/roles/deploy/files
             tar -zcvf backend.tar backend
-            cp backend.zip .circleci/ansible/roles/deploy/files
+            cp backend.tar .circleci/ansible/roles/deploy/files
 
             # cd backend
             # npm install
             # npm run build
             # cd ..
             tar -C backend -czvf artifact.tar.gz .
+            cp artifact.tar.gz.circleci/ansible/roles/deploy/files
             cd .circleci/ansible
             cat inventory.txt
             export ANSIBLE_HOST_KEY_CHECKING=False
