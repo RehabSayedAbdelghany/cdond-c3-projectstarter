@@ -396,8 +396,8 @@ jobs:
             # npm install
             # npm run build
             # cd ..
-            tar -C backend -czvf artifact.tar.gz .
-            cp artifact.tar.gz.circleci/ansible/roles/deploy/files
+            # tar -C backend -czvf artifact.tar.gz .
+            # cp artifact.tar.gz .circleci/ansible/roles/deploy/files
             cd .circleci/ansible
             cat inventory.txt
             export ANSIBLE_HOST_KEY_CHECKING=False
