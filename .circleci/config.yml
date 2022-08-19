@@ -39,6 +39,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            npm install
             SUCCESS=$(curl  https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/MIGRATION_<< parameters.id >>)
             echo $SUCCESS
             if [[ "$SUCCESS" == "success" ]]
@@ -362,11 +363,15 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            yum -y install jq tar gzip git curl
+      - run:
+          name: Install dependencies
+          command: |
             apk add --update ansible curl rsync openssh nodejs npm
             ansible --version
             pip install awscli
             aws --version 
-            yum -y install tar gzip 
+      
       - run:
           name: Configure Server
           no_output_timeout: 60m
