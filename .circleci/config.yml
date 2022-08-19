@@ -366,6 +366,7 @@ jobs:
             ansible --version
             pip install awscli
             aws --version 
+            yum -y install tar gzip 
       - run:
           name: Configure Server
           no_output_timeout: 60m
