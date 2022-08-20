@@ -46,6 +46,7 @@ commands:
             then
               pwd
               ls -la
+              npm install
               npm run migrations:revert
             fi
           when: << parameters.when >>
@@ -304,7 +305,7 @@ jobs:
              then
                curl --insecure -d "success" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
             else
-               curl --insecure -d "success" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+               curl --insecure -d "failure" https://kvdb.io/KZCdTiU6MrRPT9pvBNgBuJ/MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
             fi
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -558,5 +559,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
