@@ -1,14 +1,13 @@
 [URL01]
   https://github.com/RehabSayedAbdelghany/cdond-c3-projectstarter
-[URL02]
- http://udapeople-6e64c30.s3-website.us-east-1.amazonaws.com/#/employees
-[URL03]
-  https://d7d6out99rr02.cloudfront.net
-[URL04]
-  http://ec2-3-125-115-11.eu-central-1.compute.amazonaws.com:3030/
-
-[URL05]
-  http://ec2-18-185-75-24.eu-central-1.compute.amazonaws.com:9090
+[URL02] s3
+ http://udapeople-138a976.s3-website.us-east-1.amazonaws.com/
+ 
+[URL03] --- cloudfront
+  http://d144hwh2pqcc0p.cloudfront.net/#/employees
   
+[URL04] backend ec2
+  http://ec2-52-4-106-201.compute-1.amazonaws.com:3030/
 
-
+[URL05] prometheus
+  http://ec2-18-209-9-26.compute-1.amazonaws.com:9090/
