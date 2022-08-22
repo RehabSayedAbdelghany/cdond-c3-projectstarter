@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 1s
+  evaluation_interval: 1s
+  
+rule_files:
+ - /etc/prometheus/rules.yml
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - localhost:9093
+      
+scrape_configs:
+  - job_name: 'node'
+    ec2_sd_configs:
+      - region: us-east-1
+        access_key: AKIARWZ7OFBXSTYA4L5F
+        secret_key: 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
+        port: 9100
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['localhost:9090']
